@@ -1,19 +1,22 @@
 import pandas as pd
 import streamlit as st
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 st.title("Job Recommendation System")
 jobs = pd.read_csv("jobs.csv")
 skills = st.text_input("Enter your skills")
 if st.button("Recommend Jobs"):
-    if skills:
-        vectorizer = TfidfVectorizer()
-        data = vectorizer.fit_transform(jobs["Skills"].tolist() + [skills])
-        similarity = cosine_similarity(data[-1], data[:-1]).flatten()
-        jobs["Match"] = similarity * 100
-        recommendations = jobs.sort_values("Match", ascending=False).head(3)
-        st.subheader("Recommended Jobs")
-        for _, job in recommendations.iterrows():
-            st.write(f"*{job['Job Title']}* - {job['Match']:.2f}% match")
-    else:
-        st.warning("Please enter your skills.")
+    skills = skills.lower()
+    results = []
+    for i, row in jobs.iterrows():
+        job_skills = row["Skills"].lower().split()
+        matches = 0
+        for skill in job_skills:
+            if skill in skills:
+                matches += 1
+        if matches > 0:
+            results.append((row["Job Title"], matches))
+    results.sort(key=lambda x: x[1], reverse=True)
+    st.subheader("Recommended Jobs")
+    if results:
+        for job, matches in results[:3]:
+            st.write(job)    else:
+        st.write("No matching jobs found.")
