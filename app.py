@@ -18,5 +18,6 @@ if st.button("Recommend Jobs"):
     st.subheader("Recommended Jobs")
     if results:
         for job, matches in results[:3]:
-            st.write(job)    else:
+            st.write(job)
+    else:
         st.write("No matching jobs found.")
